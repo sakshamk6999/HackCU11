@@ -1,0 +1,3 @@
+[submodule "github-repo/StreamingAvatar"]
+	path = github-repo/StreamingAvatar
+	url = https://github.com/HeyGen-Official/StreamingAvatar.git
