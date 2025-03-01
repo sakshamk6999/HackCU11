@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech-to-Text Web UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f3f3f3;
+        }
+        h2 {
+            text-align: center;
+        }
+        #startButton, #stopButton {
+            font-size: 16px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+        #stopButton {
+            background-color: #f44336;
+        }
+        #outputText {
+            width: 100%;
+            height: 150px;
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Speech-to-Text System</h2>
+    
+    <button id="startButton">Start Listening</button>
+    <button id="stopButton" style="display:none;">Stop Listening</button>
+    
+    <textarea id="outputText" readonly placeholder="Your transcribed text will appear here..."></textarea>
+
+    <script>
+        const startButton = document.getElementById("startButton");
+        const stopButton = document.getElementById("stopButton");
+        const outputText = document.getElementById("outputText");
+
+        // Check if SpeechRecognition is supported in the browser
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser does not support Speech Recognition.");
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true; // Keep listening even after a pause
+        recognition.interimResults = true; // Display results while recognizing
+
+        // Start listening when the Start button is clicked
+        startButton.addEventListener("click", () => {
+            recognition.start();
+            startButton.style.display = "none";
+            stopButton.style.display = "inline-block";
+        });
+
+        // Stop listening when the Stop button is clicked
+        stopButton.addEventListener("click", () => {
+            recognition.stop();
+            startButton.style.display = "inline-block";
+            stopButton.style.display = "none";
+        });
+
+        // Process speech recognition results
+        recognition.addEventListener("result", (event) => {
+            let transcript = "";
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            outputText.value = transcript;
+        });
+
+        // Handle recognition end (optional)
+        recognition.addEventListener("end", () => {
+            console.log("Speech recognition ended.");
+        });
+    </script>
+
+</body>
+</html>
