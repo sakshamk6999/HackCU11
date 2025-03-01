@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Shadows+Into+Light&display=swap');
+
+body {
+    background-color: #f0e6d6;
+    background-image: url('https://www.transparenttextures.com/patterns/old-mathematics.png');
+    font-family: 'Patrick Hand', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.diary-book-container {
+    perspective: 1200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.diary-book {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    height: 500px;
+    background: #fdf8f4;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(5deg) rotateY(-10deg);
+    background: #f8f3ea;
+    border: 3px solid #c4a484;
+}
+
+/* Each page */
+.book-page {
+    flex: 1;
+    padding: 20px;
+    background: #fff;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* Left page - text */
+.left-page {
+    border-right: 2px solid #c4a484;
+    background: #fffaf3;
+}
+
+/* Right page - media */
+.right-page {
+    background: #fdf8f4;
+}
+
+/* Spine in the center */
+.book-spine {
+    width: 10px;
+    background: linear-gradient(to right, #d5b9a5, #c4a484);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Title styling */
+.page-title {
+    font-family: 'Shadows Into Light', cursive;
+    font-size: 2.5em;
+    text-align: center;
+    color: #5a3e36;
+    margin: 0;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #d5b9a5;
+}
+
+/* Date at the top */
+.page-date {
+    font-size: 1em;
+    text-align: center;
+    color: #8b5e3c;
+    margin: 5px 0 15px;
+    font-style: italic;
+}
+
+/* Text content */
+.diary-text {
+    font-size: 1.1em;
+    line-height: 1.5;
+    color: #5a3e36;
+}
+
+/* Section headers */
+.media-title {
+    font-family: 'Shadows Into Light', cursive;
+    font-size: 1.5em;
+    text-align: center;
+    color: #5a3e36;
+    margin: 10px 0;
+    border-bottom: 1px solid #d5b9a5;
+}
+
+/* Footer quote */
+.page-footer {
+    text-align: center;
+    font-style: italic;
+    font-size: 0.9em;
+    color: #8b5e3c;
+    opacity: 0.8;
+}
+
+/* Video and audio */
+video, audio {
+    width: 100%;
+    margin: 10px 0;
+}
+
+/* Optional: Slight curved page edges */
+.book-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    left: 0;
+    transform: skewX(-15deg);
+    pointer-events: none;
+}
+.book-page::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    right: 0;
+    transform: skewX(15deg);
+    pointer-events: none;
+}
