@@ -16,8 +16,10 @@ def index():
 def health():
     return "App is Up"
 
-
-
+@app.route('/ask', methods=['POST'])
+def ask_ollama():
+    
+    pass
 
 
 if __name__=='__main__':
