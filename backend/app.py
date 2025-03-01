@@ -1,5 +1,9 @@
 from flask import Flask, request, Response, jsonify, redirect, url_for
 import json
+from dotenv import load_dotenv
+
+load_dotenv(".env")
+
 
 app = Flask(__name__)
 
