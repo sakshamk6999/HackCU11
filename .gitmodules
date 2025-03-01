@@ -1,3 +1,6 @@
 [submodule "github-repo/StreamingAvatar"]
 	path = github-repo/StreamingAvatar
 	url = https://github.com/HeyGen-Official/StreamingAvatar.git
+[submodule "github-repo/chroma-viewer"]
+	path = github-repo/chroma-viewer
+	url = https://github.com/avantrio/chroma-viewer.git

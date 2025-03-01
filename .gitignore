@@ -5,6 +5,8 @@
 # Backend
 venv/
 **/__pycache__/
+llm/
+llm_env/
 
 # environment files
 **/.env
