@@ -3,12 +3,13 @@ import io from 'socket.io-client';
 import { AvatarVideo } from './AvatarVideo';
 
 
-const AudioRecorder = () => {
+const AudioRecorder = ({resetMessages, addMessage}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
 //   const [audioChunks, setAudioChunks] = useState([]);
   const [socket, setSocket] = useState(null);
   const [transciption, setTranscription] = useState("");
+  const [startSession, setStartSession] = useState(false);
 
   useEffect(() => {
     // Connect to the backend WebSocket server
@@ -21,6 +22,8 @@ const AudioRecorder = () => {
     ws.on('transcription', (data) => {
     console.log('Audio data received confirmation:', data);
     setTranscription(data.transcript);
+    addMessage({sender: 'user', content: data.question});
+    addMessage({sender: 'bot', content: data.trancript})
     });
 
     setSocket(ws);
@@ -67,12 +70,19 @@ const AudioRecorder = () => {
     setIsRecording(false);
   };
 
+  const handleSession = () => {
+    setStartSession(startSession ? false : true);
+  }
+
   return (
     <div>
-        <AvatarVideo transcript={transciption}/><br />
-        <button onClick={isRecording ? stopRecording : startRecording}>
-        {isRecording ? 'Stop Recording' : 'Start Recording'}
+        <AvatarVideo transcript={transciption} sessionStart={startSession}/><br />
+        <h2 className="media-title">Audio Memo 🎙️</h2>
+        <div style={{display: 'flex'}}>
+        <button style={{flexGrow: 1}} onClick={handleSession}>Toggle Session</button>
+        <button style={{flexGrow: 1}} onClick={isRecording ? stopRecording : startRecording} >{isRecording ? 'Stop Recording' : 'Start Recording'}
       </button>
+        </div>
     </div>
   );
 };

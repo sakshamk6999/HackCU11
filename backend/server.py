@@ -28,6 +28,7 @@ def handle_audio_chunk(data):
     # print(f"the response is {response_json}")
     response = quickstart_v2()
     print(f"the response is {response}")
+    question = response
 
     response = requests.post("http://127.0.0.1:5000/ask", data={"prompt": response})
     # Optionally, send a response back to the client
@@ -36,7 +37,7 @@ def handle_audio_chunk(data):
     # final_response = " ".join(response_list)
 
     print(f"response {reply}")
-    emit('transcription', {'transcript': reply})
+    emit('transcription', {'transcript': reply, 'question': question})
     # print(f"joined response {' '.join(response.json()['response'])}")
 
 # Handle stop recording event

@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 // const avatar = new StreamingAvatar({ token: 'your-access-token' });
 
-export const AvatarVideo = ({transcript}) => {
+export const AvatarVideo = ({transcript, sessionStart}) => {
     const mediaStream = useRef(null);
     const avatar = useRef(null);
     const [stream, setStream] = useState();
@@ -18,6 +18,11 @@ export const AvatarVideo = ({transcript}) => {
         }
     }, [transcript])
 
+    useEffect(() => {
+        if(sessionStart){
+        startSession();
+    }
+    }, [sessionStart])
 
     async function fetchAccessToken() {
         try {
@@ -25,7 +30,7 @@ export const AvatarVideo = ({transcript}) => {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'X-Api-Key': "Yjk1NTQwYzZmYjFhNGQzYzk5YWU2Y2YwY2ZjNzJhMDEtMTc0MDg1NzUwMw==",
+                'X-Api-Key': "NjdkODY3OGM4ZWEwNGMzOGIyOGM2ZDgzNjIyMzhiNDYtMTc0MDg2Mzg0Ng==",
               },
           });
           const token = await response.json();
@@ -132,8 +137,8 @@ export const AvatarVideo = ({transcript}) => {
     }
 
     return (
-        <div className='avatar-video' style={{border: "1px solid black", height: "300px"}}>
-            <button onClick={startSession}>Start Session</button>
+        <div className='avatar-video' style={{ height: "300px", overflow: 'hidden'}}>
+            {/* <button onClick={startSession}>Start Session</button> */}
             {/* <input placeholder='enter the text that you want the avatar to say'
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -145,11 +150,13 @@ export const AvatarVideo = ({transcript}) => {
                 playsInline
                 style={{
                     height: "300px",
-                    width: '300px',
-                  objectFit: "contain",
+                //   objectFit: "contain",
+                    // position: 'absolute',
+                    margin: 'auto',
+                    display: "inline-block"
                 }}
             >
-                <track kind="captions" />
+                {/* <track kind="captions" /> */}
             </video>
         </div>
     )
