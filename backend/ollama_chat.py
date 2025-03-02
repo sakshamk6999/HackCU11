@@ -72,11 +72,12 @@ class OllamaModel:
         print(decoded_response1.content)
 
         context_docs = self.chromadb.query(decoded_response1.content)
-        context = "\n".join(context_docs)
+        context = "\n ".join(context_docs)
 
         final_response = f"""
-            Extract key facts and information from the user message while keeping the context in mind. 
+            Extract key facts and focus information from the user message. 
             Format the output as a list of facts.
+            You can also use the context data as context, but focus more on the user message.
             
             Context: {context}
             User message: {decoded_response1.content}
@@ -115,7 +116,7 @@ class OllamaModel:
         decoded_response1 = [temp.strip() for temp in decoded_response1]
 
         print("Here4")
-        self.chromadb.add({"id": str(uuid4()), "content": "\n".join(decoded_response1)})
+        self.chromadb.add({"id": str(uuid4()), "content": "\n ".join(decoded_response1)})
         print("Here5")
         return decoded_response1
 
