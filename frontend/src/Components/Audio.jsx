@@ -1,64 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
+// Assuming you are using Socket.IO client to handle WebSocket communication
+import io from 'socket.io-client';
 
 const AudioRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [audioChunks, setAudioChunks] = useState([]);
   const [socket, setSocket] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioStreamRef = useRef(null);
 
   useEffect(() => {
-    // Connect to the backend WebSocket server
-    const ws = new WebSocket('ws://your-backend-server.com');
-    ws.onopen = () => {
-      console.log('WebSocket connection established');
-    };
-    ws.onmessage = (message) => {
-      console.log('Received from backend: ', message.data);
-    };
-    setSocket(ws);
+    // Initialize WebSocket connection
+    const socketConnection = io('http://localhost:80');
+    setSocket(socketConnection);
+
+    socketConnection.on('connected', (message) => {
+      console.log(message.status);
+    });
+
+    socketConnection.on('transcription', (data) => {
+      console.log('Audio data received confirmation:', data);
+    });
 
     return () => {
-      ws.close(); // Close WebSocket connection when component unmounts
+      socketConnection.disconnect();
     };
   }, []);
 
-  // Start recording
-  const startRecording = async () => {
-    // Request user microphone access
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    // Create a MediaRecorder instance
-    const recorder = new MediaRecorder(stream);
-    setMediaRecorder(recorder);
+  // // Start recording
+  const startRecording = () => {
+    if (!navigator.mediaDevices) {
+      alert("Your browser doesn't support audio recording.");
+      return;
+    }
 
-    // When data is available, push the chunk to the audioChunks array
-    recorder.ondataavailable = (event) => {
-      // Send audio chunk to the WebSocket backend
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(event.data);
-      }
-    };
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        audioStreamRef.current = stream;
+        mediaRecorderRef.current = new MediaRecorder(stream);
 
-    // When the recording stops, close the WebSocket connection
-    recorder.onstop = () => {
-      socket.close();
-    };
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          // Push the chunk of audio data to the audioChunks array
+          audioChunksRef.current.push(event.data);
 
-    // Start recording
-    recorder.start();
-    setIsRecording(true);
+          // Send the audio chunk over WebSocket
+          sendAudioToBackend(event.data);
+        };
+
+        mediaRecorderRef.current.start(100); // Start recording, every 100ms a chunk is captured
+        setIsRecording(true);
+      })
+      .catch((err) => console.error('Error accessing media devices:', err));
   };
 
-  // Stop recording
+  const sendAudioToBackend = (audioData) => {
+    if (socket) {
+      // Send audio data as a Blob to Flask backend over WebSocket
+      socket.emit('audio_chunk', audioData);
+    }
+  };
+
+  // // Stop recording
   const stopRecording = () => {
-    mediaRecorder.stop();
-    setIsRecording(false);
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      audioStreamRef.current.getTracks().forEach((track) => track.stop()); // Stop all tracks
+      setIsRecording(false);
+    }
   };
 
   return (
     <div>
-      <button onClick={isRecording ? stopRecording : startRecording}>
-        {isRecording ? 'Stop Recording' : 'Start Recording'}
+      <h1>Audio Streaming via WebSocket</h1>
+      <button onClick={startRecording} disabled={isRecording}>
+        Start Recording
+      </button>
+      <button onClick={stopRecording} disabled={!isRecording}>
+        Stop Recording
       </button>
     </div>
   );
