@@ -1,10 +1,11 @@
 from flask import Flask, request, Response, jsonify, redirect, url_for
 import json
 from dotenv import load_dotenv
-
+import os
 from ollama_chat import OllamaModel
 
 load_dotenv(".env")
+os.environ['OPENAI_API_KEY'] = 'ollama'
 
 
 app = Flask(__name__)
@@ -27,7 +28,8 @@ def ask_ollama():
         print(prompt)
 
         
-        model_response = ollama_model.ask(prompt)
+        # model_response = ollama_model.ask(prompt)
+        model_response = ollama_model.ask_with_RAG(prompt)
 
         return jsonify({"response" : model_response}), 200
     except Exception as e:

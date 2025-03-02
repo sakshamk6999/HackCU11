@@ -1,0 +1,1 @@
+lemonade -i amd/Llama-3.2-3B-Instruct-awq-g128-int4-asym-fp16-onnx-hybrid oga-load --device hybrid --dtype int4 llm-prompt --max-new-tokens 64 -p "hi"

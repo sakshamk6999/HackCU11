@@ -1,11 +1,23 @@
-from lemonade.api import from_pretrained
+# from lemonade.api import from_pretrained
 import re
+# from ollama import chat
+from langchain_community.chat_models import ChatOllama
+
+# from langchain.prompts import PromptTemplate
+from chroma_client import Chroma
+from uuid import uuid4
+
+import os
+
+os.environ['OPENAI_API_KEY'] = 'ollama'
 
 class OllamaModel:
     def __init__(self):
-        self.model, self.tokenizer = from_pretrained(
-            "amd/Llama-3.2-3B-Instruct-awq-g128-int4-asym-fp16-onnx-hybrid", recipe="oga-hybrid"
-        )
+        # self.model, self.tokenizer = from_pretrained(
+        #     "amd/Llama-3.2-3B-Instruct-awq-g128-int4-asym-fp16-onnx-hybrid", recipe="oga-hybrid"
+        # )
+        # self.RAG_URL = "localhost"
+        self.model = "llama3.2:1b"
 
         # self.ANSH_SYSTEM_PROMPT = """
         #     You are Ansh, a young Indian boy who is the user's friend and digital diary. 
@@ -32,24 +44,43 @@ class OllamaModel:
             1. Ask follow-up questions to learn more about the user
             2. Be supportive and positive
             """
-    #     """Give a list of action items from the given Transcript. The list should not include an action item if PrevActionItemList contains an item with similar Description. The list should be in the same format as ActionItemList and follow the given Constraints.
-    # ActionItemList: {[{"issueType": "type of task", "assignee": "Name of the person assigned the task", "priority": "Priority of task", "description": "Description of task", "summary": "Title of the Task"}]}
-    # Contraints: issueType can be one of [Task, Epic, Subtask, Story, Bug] and priority can be one of [Highest, High, Medium, Low, Lowest]
-    # PrevActionItemList: {actionItemList}
-    # Transcript: {transcript}
-    # NewActionItemList: 
-    # """
+        # self.extraction_prompt = """
+        #     Extract key facts and information from the following message. 
+        #     Focus on personal details, events, preferences, emotions, and relationships.
+        #     Format the output as a list of facts.
+            
+        #     Context: {context}
+        #     User message: {user_message}
+            
+        #     Output format:
+        #     [
+        #     "fact 1",
+        #     "fact 2",
+        #     ...
+        #     ]
+        # """
+        # self.prompt = PromptTemplate(template=self.ANSH_SYSTEM_PROMPT + self.extraction_prompt, input_variables=["context", "user_message"])
+        self.chromadb = Chroma()
+
     
-    def ask(self, prompt: str):
-        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
-        response1 = self.model.generate(input_ids)
-        decoded_response1 = self.tokenizer.decode(response1[0])
-        extraction_prompt = f"""
+    def ask_with_RAG(self, prompt: str):
+        # input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
+        # response1 = self.model.generate(input_ids)
+        # decoded_response1 = self.tokenizer.decode(response1[0])
+        llm = ChatOllama(model=self.model)
+        decoded_response1 = llm.invoke(prompt)
+        print("Here1")
+
+        context_docs = self.chromadb.query(decoded_response1.content)
+        context = "\n".join(context_docs)
+
+        final_response = f"""
             Extract key facts and information from the following message. 
             Focus on personal details, events, preferences, emotions, and relationships.
-            Format the output as a JSON list of facts.
+            Format the output as a list of facts.
             
-            User message: {decoded_response1}
+            Context: {context}
+            User message: {decoded_response1.content}
             
             Output format:
             [
@@ -58,27 +89,70 @@ class OllamaModel:
             ...
             ]
         """
-        pattern1 = "Here is the output in JSON format:"
-        pattern2 = "Here's the output in JSON format:"
-        input_ids = self.tokenizer(self.ANSH_SYSTEM_PROMPT + extraction_prompt, return_tensors="pt").input_ids
-        response = self.model.generate(input_ids, max_new_tokens=1000)
-        decoded_response = self.tokenizer.decode(response[0])
 
-        reg_match = re.search(pattern1, decoded_response)
-        
-        if reg_match:
-            decoded_response = decoded_response[reg_match.end():]
-            reg_match2 = re.search("]", decoded_response)
-            if reg_match2:
-                decoded_response = decoded_response[:reg_match2.start()]
-            decoded_response = decoded_response.replace('\n', ' ').replace('\r', '').replace("\"", '').replace("[", '')
-            decoded_response = decoded_response.split(",")
-            decoded_response = [temp.strip() for temp in decoded_response]
-        
-        # reg_match = re.search(pattern2, decoded_response)
+        # input_ids = self.tokenizer(final_response, return_tensors="pt").input_ids
+        # response = self.model.generate(input_ids, max_new_tokens=1000)
+        # decoded_response = self.tokenizer.decode(response[0])
+        decoded_response = llm.invoke(final_response)
+        print(decoded_response.content)
+        print("Here2")
+
+        # pattern1 = "Here is the output in JSON format:"
+        # reg_match = re.search(pattern1, decoded_response.content)
+        # print("Here3")
+        # print(reg_match)
         # if reg_match:
-        #     decoded_response = decoded_response[reg_match.end():]
+        #     decoded_response = decoded_response.content[reg_match.end():]
+        #     reg_match2 = re.search("]", decoded_response)
+        #     if reg_match2:
+        #         decoded_response = decoded_response[:reg_match2.start()]
         #     decoded_response = decoded_response.replace('\n', ' ').replace('\r', '').replace("\"", '').replace("[", '')
         #     decoded_response = decoded_response.split(",")
+        #     decoded_response = [temp.strip() for temp in decoded_response]
 
-        return decoded_response
+        decoded_response1 = decoded_response.content
+        decoded_response1 = decoded_response1.replace('\n', ' ').replace('\r', '').replace("\"", '').replace("[", '')
+        decoded_response1 = decoded_response1.split(",")
+        decoded_response1 = [temp.strip() for temp in decoded_response1]
+
+        print("Here4")
+        self.chromadb.add({"id": str(uuid4()), "content": "\n".join(decoded_response1)})
+        print("Here5")
+        return decoded_response1
+
+    def ask(self, prompt: str):
+        # input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
+        # response1 = self.model.generate(input_ids)
+        # decoded_response1 = self.tokenizer.decode(response1[0])
+        # extraction_prompt = f"""
+        #     Extract key facts and information from the following message. 
+        #     Focus on personal details, events, preferences, emotions, and relationships.
+        #     Format the output as a JSON list of facts.
+            
+        #     User message: {decoded_response1}
+            
+        #     Output format:
+        #     [
+        #     "fact 1",
+        #     "fact 2",
+        #     ...
+        #     ]
+        # """
+        # pattern1 = "Here is the output in JSON format:"
+        # input_ids = self.tokenizer(self.ANSH_SYSTEM_PROMPT + extraction_prompt, return_tensors="pt").input_ids
+        # response = self.model.generate(input_ids, max_new_tokens=1000)
+        # decoded_response = self.tokenizer.decode(response[0])
+
+        # reg_match = re.search(pattern1, decoded_response)
+        
+        # if reg_match:
+        #     decoded_response = decoded_response[reg_match.end():]
+        #     reg_match2 = re.search("]", decoded_response)
+        #     if reg_match2:
+        #         decoded_response = decoded_response[:reg_match2.start()]
+        #     decoded_response = decoded_response.replace('\n', ' ').replace('\r', '').replace("\"", '').replace("[", '')
+        #     decoded_response = decoded_response.split(",")
+        #     decoded_response = [temp.strip() for temp in decoded_response]
+
+        # return decoded_response
+        pass
