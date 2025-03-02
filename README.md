@@ -57,6 +57,7 @@ Run project (frontend):
 cd frontend
 npm run dev
 ```
+## Video - https://youtu.be/1wwqeeN3aRM
 
 ## 🧑‍💻 Team Members
 - Saksham Khatwani 
