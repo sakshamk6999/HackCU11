@@ -5,6 +5,9 @@
 # Backend
 venv/
 **/__pycache__/
+llm/
+llm_env/
+github-repo/chromadb-viewer
 
 # environment files
 **/.env
