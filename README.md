@@ -23,3 +23,4 @@ OPENAI_KEY=<OPEN AI Key here>
 ```
 
 ###chromadb setup
+streamlit run ./github-repo/chroma-viewer/chroma-viewer/viewer.py ./backend/chroma_db 

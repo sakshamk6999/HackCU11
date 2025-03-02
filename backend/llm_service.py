@@ -1,5 +1,5 @@
-# Import required libraries
-from langchain_ollama import OllamaEmbeddings, OllamaLLM
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_ollama import OllamaLLM  # LLM remains unchanged
 import chromadb
 import os
 
@@ -8,12 +8,12 @@ llm_model = "llama3.2:1b"
 
 # Configure ChromaDB
 # Initialize the ChromaDB client with persistent storage in the current directory
-chroma_client = chromadb.PersistentClient(path=os.path.join(os.getcwd(), "chroma_db"))
+chroma_client = chromadb.PersistentClient(path="M:/HackCU11/backend/chroma_db")
 
-# Define a custom embedding function for ChromaDB using Ollama
+# Define a custom embedding function for ChromaDB using HuggingFace embeddings
 class ChromaDBEmbeddingFunction:
     """
-    Custom embedding function for ChromaDB using embeddings from Ollama.
+    Custom embedding function for ChromaDB using embeddings.
     """
     def __init__(self, langchain_embeddings):
         self.langchain_embeddings = langchain_embeddings
@@ -24,21 +24,42 @@ class ChromaDBEmbeddingFunction:
             input = [input]
         return self.langchain_embeddings.embed_documents(input)
 
-# Initialize the embedding function with Ollama embeddings
+# Initialize the embedding function with HuggingFace embeddings
 embedding = ChromaDBEmbeddingFunction(
-    OllamaEmbeddings(
-        model=llm_model,
-        base_url="http://localhost:11434"  # Adjust the base URL as per your Ollama server configuration
-    )
+    HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 )
 
 # Define a collection for the RAG workflow
 collection_name = "conversation_ansh"
 collection = chroma_client.get_or_create_collection(
     name=collection_name,
-    metadata={"description": "A collection for RAG with Ollama - Demo1"},
+    metadata={"description": "A collection for RAG with HuggingFace embeddings - Demo1"},
     embedding_function=embedding  # Use the custom embedding function
 )
+
+# Function to show all collections and their documents
+def show_all_collections():
+    """
+    Display all collections and print the actual text (words) from each document stored.
+    """
+    try:
+        collections = chroma_client.list_collections()  # List all collection names
+        if not collections:
+            print("No collections found in the database.")
+            return
+
+        print("All Collections in the Database:")
+        for col in collections:
+            print(f"\nCollection: {col.name}")
+            coll_obj = chroma_client.get_collection(col.name, embedding_function=embedding)
+            print(coll_obj, type(coll_obj))
+            # Retrieve documents, embeddings, and metadatas (excluding ids)
+            results = coll_obj.get(include=["documents", "embeddings", "metadatas"])
+            documents = results.get("documents", [])
+            print(documents)
+
+    except Exception as e:
+        print(f"Error while retrieving collections or documents: {str(e)}")
 
 # Function to add documents to the ChromaDB collection
 def add_documents_to_collection(documents, ids):
@@ -54,20 +75,8 @@ def add_documents_to_collection(documents, ids):
         ids=ids
     )
 
-# Example: Add sample documents to the collection
-documents = [
-    "Artificial intelligence is the simulation of human intelligence processes by machines.",
-    "Python is a programming language that lets you work quickly and integrate systems more effectively.",
-    "ChromaDB is a vector database designed for AI applications."
-]
-doc_ids = ["doc1", "doc2", "doc3"]
-
-# Documents only need to be added once or whenever an update is required. 
-# This line of code is included for demonstration purposes:
-add_documents_to_collection(documents, doc_ids)
-
 # Function to query the ChromaDB collection
-def query_chromadb(query_text, n_results=1):
+def query_chromadb(query_text, n_results=3):
     """
     Query the ChromaDB collection for relevant documents.
     
@@ -111,7 +120,10 @@ def rag_pipeline(query_text):
     """
     # Step 1: Retrieve relevant documents from ChromaDB
     retrieved_docs, metadata = query_chromadb(query_text)
-    context = " ".join(retrieved_docs[0]) if retrieved_docs else "No relevant documents found."
+    print("Type of metadata:", type(metadata))
+
+    # Flatten the list if needed (in case retrieved_docs is a list of lists)
+    context = " ".join([doc for sublist in retrieved_docs for doc in (sublist if isinstance(sublist, list) else [sublist])]) if retrieved_docs else "No relevant documents found."
 
     # Step 2: Send the query along with the context to Ollama
     augmented_prompt = f"Context: {context}\n\nQuestion: {query_text}\nAnswer:"
@@ -119,10 +131,46 @@ def rag_pipeline(query_text):
     print(augmented_prompt)
 
     response = query_ollama(augmented_prompt)
+
+    # Step 3: Store the new response in ChromaDB for future reference
+    doc_id = f"doc{len(metadata) + 1}"  # Simple way to generate new unique IDs
+    add_documents_to_collection([response], [doc_id])
+
+    # Optionally, store the facts from the response as new context in ChromaDB
+    facts = extract_facts(response)  # This is a placeholder for a function you might create for extracting facts.
+    add_documents_to_collection(facts, [f"fact_{doc_id}" for _ in range(len(facts))])
+    show_all_collections()
     return response
 
+def extract_facts(response):
+    """
+    Extract relevant facts or pieces of information from the response.
+    
+    Args:
+        response (str): The generated response from Ollama.
+    
+    Returns:
+        list: A list of extracted facts (strings).
+    """
+    # Example: Extract facts from the response by splitting on sentences.
+    facts = response.split(". ")
+    return facts
+
+# Function to interact with the user and handle queries dynamically
+def ask_question():
+    """
+    Function to allow the user to input questions and get RAG responses.
+    """
+    while True:
+        query = input("Please ask a question: ")
+        
+        if query.lower() in ['exit', 'quit', 'bye']:
+            print("Exiting the conversation.")
+            break
+        
+        response = rag_pipeline(query)
+        print(f"Answer: {response}")
+
 # Example usage
-# Define a query to test the RAG pipeline
-query = "What is artificial intelligence?"  # Change the query as needed
-response = rag_pipeline(query)
-print("######## Response from LLM ########\n", response)
+show_all_collections()
+ask_question()  # Start the interactive Q&A loop
