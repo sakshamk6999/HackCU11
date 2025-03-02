@@ -132,7 +132,7 @@ export const AvatarVideo = ({transcript}) => {
     }
 
     return (
-        <div className='avatar-video'>
+        <div className='avatar-video' style={{border: "1px solid black", height: "300px"}}>
             <button onClick={startSession}>Start Session</button>
             {/* <input placeholder='enter the text that you want the avatar to say'
             value={text}
@@ -144,8 +144,8 @@ export const AvatarVideo = ({transcript}) => {
                 autoPlay
                 playsInline
                 style={{
-                  width: "100%",
-                  height: "100%",
+                    height: "300px",
+                    width: '300px',
                   objectFit: "contain",
                 }}
             >

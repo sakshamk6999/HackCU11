@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@heygen/streaming-avatar": "^2.0.10",
+    "extendable-media-recorder": "^9.2.20",
     "hls.js": "^1.5.20",
     "livekit-client": "^2.9.5",
     "react": "^19.0.0",

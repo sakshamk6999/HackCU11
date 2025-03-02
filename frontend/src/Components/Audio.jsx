@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { AvatarVideo } from './AvatarVideo';
 
+
 const AudioRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
@@ -29,14 +30,16 @@ const AudioRecorder = () => {
     };
   }, []);
 
-  // Start recording
+
   const startRecording = async () => {
     // Request user microphone access
     console.log("in the start recording")
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
+    
     // Create a MediaRecorder instance
-    const recorder = new MediaRecorder(stream);
+    const recorder = new MediaRecorder(stream,{type:'audio/webm'});
+
     setMediaRecorder(recorder);
     const audioChunks = [];
     // When data is available, push the chunk to the audioChunks array
@@ -44,7 +47,7 @@ const AudioRecorder = () => {
       // Send audio chunk to the WebSocket backend
       console.log("recorder ready")
     //   if (socket && socket.readyState === WebSocket.OPEN) {
-        console.log("emitting")
+        console.log("emitting ", event.data)
         socket.emit('audio_chunk', event.data)
     //   }
     };
@@ -66,8 +69,8 @@ const AudioRecorder = () => {
 
   return (
     <div>
-        <AvatarVideo transcript={transciption}/>
-      <button onClick={isRecording ? stopRecording : startRecording}>
+        <AvatarVideo transcript={transciption}/><br />
+        <button onClick={isRecording ? stopRecording : startRecording}>
         {isRecording ? 'Stop Recording' : 'Start Recording'}
       </button>
     </div>

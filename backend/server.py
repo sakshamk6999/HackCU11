@@ -32,11 +32,11 @@ def handle_audio_chunk(data):
     response = requests.post("http://127.0.0.1:5000/ask", data={"prompt": response})
     # Optionally, send a response back to the client
     # emit('transcription', {'transcript': ' '.join(response.json()['response'])})
-    response_list = response.json()['response']
-    final_response = " ".join(response_list)
+    reply = response.json()['response']
+    # final_response = " ".join(response_list)
 
-    print(f"response {final_response}")
-    emit('transcription', {'transcript': final_response})
+    print(f"response {reply}")
+    emit('transcription', {'transcript': reply})
     # print(f"joined response {' '.join(response.json()['response'])}")
 
 # Handle stop recording event
