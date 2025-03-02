@@ -2,6 +2,7 @@ import os
 from google.cloud import speech
 from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech as cloud_speech_types
+import jsonpickle
 
 PROJECT_ID = "assignmentdatacenterscale"
 
@@ -62,6 +63,7 @@ def transcribe_streaming_v2(
     for response in responses_iterator:
         responses.append(response)
         for result in response.results:
+            print(f"decoded JSON: {jsonpickle.decode(result.alternatives[0].transcript)}")
             print(f"Transcript: {result.alternatives[0].transcript}")
 
     return responses

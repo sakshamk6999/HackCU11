@@ -4,6 +4,7 @@ import os
 from flask_cors import CORS, cross_origin
 from google_speech_2_text import quickstart_v2
 from google_speech_2_text_stream import transcribe_streaming_v2
+import jsonpickle
 
 app = Flask(__name__)
 CORS(app, origins=["*"])
@@ -17,20 +18,24 @@ def index():
 @socketio.on('audio_chunk')
 def handle_audio_chunk(data):
     # You can store the audio chunks in a file or process them here
-    with open("audio_stream.wav", "ab") as audio_file:
+    print(f"received data of size: {len(data)}")
+    with open("audio_stream.wav", "wb") as audio_file:
         audio_file.write(data)
     
-    response = transcribe_streaming_v2()
-
-    print(f"the response is {response[-1]}")
+    # response = quickstart_v2()
+    # response_json = jsonpickle.decode(response)
+    # print(f"the response is {response_json}")
+    response = quickstart_v2()
+    print(f"the response is {response}")
 
     # Optionally, send a response back to the client
-    emit('transcription', {'status': 'success'})
+    # emit('transcription', {'status': 'success'})
 
 # Handle stop recording event
 @socketio.on('stop_recording')
 def stop_recording():
     print("Recording stopped")
+    
     
     # You can send back an acknowledgment or process the final audio here
 
