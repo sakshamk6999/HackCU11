@@ -11,9 +11,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@heygen/streaming-avatar": "^2.0.10",
+    "extendable-media-recorder": "^9.2.20",
     "hls.js": "^1.5.20",
+    "livekit-client": "^2.9.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

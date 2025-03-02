@@ -25,3 +25,6 @@ Set the file as following:
 ```
 OPENAI_KEY=<OPEN AI Key here>
 ```
+
+## npu fix
+pip install -r small_requirements.txt --force-reinstall
