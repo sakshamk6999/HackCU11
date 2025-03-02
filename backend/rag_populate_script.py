@@ -1,8 +1,8 @@
-# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from langchain_ollama import OllamaEmbeddings
 import chromadb
 from chromadb.config import Settings
 import os
+import json
 os.environ['OPENAI_API_KEY'] = 'ollama'
 
 class Chroma:
@@ -26,14 +26,25 @@ class Chroma:
             embeddings=[embedding]
         )
 
-    def query(self, query_text):
-        query_embedding = self.embedding_function.embed_query(query_text)
-
-        collection = self.chroma_client.get_or_create_collection(self.collection_name)
+def main():
+    f_name = "backend/text.txt"
+    try:
+        chroma_client = Chroma()
+        with open(f_name, "r") as f:
+            # print("Yes")
+            datas = json.load(f)
+        # print(data[0])
         
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=6
-        )
-        retrieved_docs = results['documents'][0]
-        return retrieved_docs
+        for i, data in enumerate(datas):
+            doc = {
+                "id" : str(data['day']),
+                "content" : " ".join(data['response'])}
+            # print(doc)
+            # exit(0)
+            print(f"Added Document {i+1}")
+            chroma_client.add(doc)
+        
+    except Exception as e:
+        print(e)
+
+main()

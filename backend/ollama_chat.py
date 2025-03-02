@@ -36,7 +36,7 @@ class OllamaModel:
         #     4. Be supportive and positive
         #     """
         self.ANSH_SYSTEM_PROMPT = """
-            You are Ansh, a young Indian boy who is the user's friend and digital diary. 
+            You are Ansh, the user's friend and digital diary. 
             Your personality traits:
             - Keeps responses brief (under 100 words)
 
@@ -69,15 +69,15 @@ class OllamaModel:
         # decoded_response1 = self.tokenizer.decode(response1[0])
         llm = ChatOllama(model=self.model)
         decoded_response1 = llm.invoke(prompt)
-        print("Here1")
+        print(decoded_response1.content)
 
         context_docs = self.chromadb.query(decoded_response1.content)
-        context = "\n".join(context_docs)
+        context = "\n ".join(context_docs)
 
         final_response = f"""
-            Extract key facts and information from the following message. 
-            Focus on personal details, events, preferences, emotions, and relationships.
+            Extract key facts and focus information from the user message. 
             Format the output as a list of facts.
+            You can also use the context data as context, but focus more on the user message.
             
             Context: {context}
             User message: {decoded_response1.content}
@@ -116,7 +116,7 @@ class OllamaModel:
         decoded_response1 = [temp.strip() for temp in decoded_response1]
 
         print("Here4")
-        self.chromadb.add({"id": str(uuid4()), "content": "\n".join(decoded_response1)})
+        self.chromadb.add({"id": str(uuid4()), "content": "\n ".join(decoded_response1)})
         print("Here5")
         return decoded_response1
 
