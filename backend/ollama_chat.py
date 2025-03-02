@@ -100,7 +100,7 @@ class OllamaModel:
             decoded_response = [temp.strip() for temp in decoded_response]
 
         self.chromadb.add({"id": "test1", "content": "\n".join(decoded_response)})
-
+        
         # self.chromadb.add({"id": str(uuid4()), "content": "\n".join(decoded_response)})
         return decoded_response
 
@@ -122,7 +122,7 @@ class OllamaModel:
             ...
             ]
         """
-        pattern1 = "Here is the output in JSON format:"
+        pattern1 = "Here is the output in the JSON format:"
         input_ids = self.tokenizer(self.ANSH_SYSTEM_PROMPT + extraction_prompt, return_tensors="pt").input_ids
         response = self.model.generate(input_ids, max_new_tokens=1000)
         decoded_response = self.tokenizer.decode(response[0])
