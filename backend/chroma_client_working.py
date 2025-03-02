@@ -1,16 +1,17 @@
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-# from llama_index.embeddings.
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from langchain_ollama import OllamaEmbeddings
 import chromadb
 from chromadb.config import Settings
 import os
+os.environ['OPENAI_API_KEY'] = 'ollama'
 
 class Chroma:
     def __init__(self, collection_name = "rag_demo"):
         os.environ['OPENAI_API_KEY'] = 'ollama'
-        self.embedding_function = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-        self.chroma_client = chromadb.Client(Settings(
-            # persist_directory="./chroma_db",
-            persist_directory="/c/Users/aup/source/repos/HackCU11/chroma_db",
+        self.embedding_function = OllamaEmbeddings(model="llama3.2:1b")
+        self.chroma_client = chromadb.PersistentClient(settings=Settings(
+            persist_directory="./chroma_db",
+            # persist_directory="/c/Users/aup/source/repos/HackCU11/chroma_db",
             anonymized_telemetry=False
         ))
         self.collection_name = collection_name

@@ -4,8 +4,11 @@ from dotenv import load_dotenv
 import os
 from ollama_chat import OllamaModel
 
-load_dotenv(".env")
-os.environ['OPENAI_API_KEY'] = 'ollama'
+
+# from backend.ollama_chat import OllamaModel
+
+# load_dotenv(".env")
+# os.environ['OPENAI_API_KEY'] = 'ollama'
 
 
 app = Flask(__name__)
