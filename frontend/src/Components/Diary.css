@@ -1,17 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Shadows+Into+Light&display=swap');
 
 body {
-    background-color: #f0e6d6;
-    background-image: url('https://www.transparenttextures.com/patterns/old-mathematics.png');
+    background-color: #f4f1ec;
+    background-image: url('https://www.transparenttextures.com/patterns/grey-floral.png'), url('../note-with-encouragement-quote-starting-with-dear.jpg');
+    background-size: cover, contain;
+    background-position: center, top;
+    background-repeat: no-repeat, repeat;
     font-family: 'Patrick Hand', cursive;
+    margin: 0;
+    padding: 0;
+    color: #5a3e36;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
     overflow: hidden;
 }
 
+/* Outer container for the book */
 .diary-book-container {
     perspective: 1200px;
     display: flex;
@@ -21,27 +27,26 @@ body {
     max-width: 1200px;
 }
 
+/* The book itself */
 .diary-book {
     display: flex;
     width: 100%;
     max-width: 900px;
     height: 500px;
-    background: #fdf8f4;
+    background: rgba(255, 250, 240, 0.95);
     border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-    position: relative;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
     transform-style: preserve-3d;
-    transform: rotateX(5deg) rotateY(-10deg);
-    background: #f8f3ea;
-    border: 3px solid #c4a484;
+    transform: rotateX(4deg) rotateY(-8deg);
+    overflow: hidden;
 }
 
 /* Each page */
 .book-page {
     flex: 1;
-    padding: 20px;
-    background: #fff;
-    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    background: #fffaf3;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -51,46 +56,45 @@ body {
 /* Left page - text */
 .left-page {
     border-right: 2px solid #c4a484;
-    background: #fffaf3;
+    background: rgba(255, 250, 240, 0.9);
 }
 
 /* Right page - media */
 .right-page {
-    background: #fdf8f4;
+    background: rgba(255, 250, 240, 0.9);
 }
 
-/* Spine in the center */
+/* Spine in the middle */
 .book-spine {
     width: 10px;
     background: linear-gradient(to right, #d5b9a5, #c4a484);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Title styling */
+/* Page title */
 .page-title {
     font-family: 'Shadows Into Light', cursive;
     font-size: 2.5em;
     text-align: center;
     color: #5a3e36;
-    margin: 0;
-    padding-bottom: 5px;
-    border-bottom: 2px solid #d5b9a5;
+    border-bottom: 2px solid #c4a484;
+    margin: 0 0 10px;
 }
 
-/* Date at the top */
+/* Date */
 .page-date {
     font-size: 1em;
-    text-align: center;
     color: #8b5e3c;
-    margin: 5px 0 15px;
+    text-align: center;
     font-style: italic;
 }
 
-/* Text content */
+/* Main text */
 .diary-text {
     font-size: 1.1em;
-    line-height: 1.5;
+    line-height: 1.6;
     color: #5a3e36;
+    text-align: justify;
 }
 
 /* Section headers */
@@ -98,46 +102,43 @@ body {
     font-family: 'Shadows Into Light', cursive;
     font-size: 1.5em;
     text-align: center;
-    color: #5a3e36;
     margin: 10px 0;
-    border-bottom: 1px solid #d5b9a5;
+    color: #5a3e36;
 }
 
 /* Footer quote */
 .page-footer {
     text-align: center;
     font-style: italic;
-    font-size: 0.9em;
     color: #8b5e3c;
-    opacity: 0.8;
+    font-size: 0.9em;
 }
 
-/* Video and audio */
+/* Media players */
 video, audio {
     width: 100%;
-    margin: 10px 0;
+    margin: 5px 0;
 }
 
-/* Optional: Slight curved page edges */
+/* Optional: Add subtle curved edges to pages */
 .book-page::before {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 12px;
+    width: 15px;
     background: rgba(0, 0, 0, 0.05);
     left: 0;
-    transform: skewX(-15deg);
-    pointer-events: none;
+    transform: skewX(-10deg);
 }
+
 .book-page::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 12px;
+    width: 15px;
     background: rgba(0, 0, 0, 0.05);
     right: 0;
-    transform: skewX(15deg);
-    pointer-events: none;
+    transform: skewX(10deg);
 }
