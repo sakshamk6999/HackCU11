@@ -29,7 +29,7 @@ def handle_audio_chunk(data):
     print(f"the response is {response}")
 
     # Optionally, send a response back to the client
-    # emit('transcription', {'status': 'success'})
+    emit('transcription', {'transcript': response})
 
 # Handle stop recording event
 @socketio.on('stop_recording')

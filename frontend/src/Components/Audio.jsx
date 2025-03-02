@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import { AvatarVideo } from './AvatarVideo';
 
 const AudioRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
 //   const [audioChunks, setAudioChunks] = useState([]);
   const [socket, setSocket] = useState(null);
+  const [transciption, setTranscription] = useState("");
 
   useEffect(() => {
     // Connect to the backend WebSocket server
@@ -17,6 +19,7 @@ const AudioRecorder = () => {
   
     ws.on('transcription', (data) => {
     console.log('Audio data received confirmation:', data);
+    setTranscription(data.transcript);
     });
 
     setSocket(ws);
@@ -63,6 +66,7 @@ const AudioRecorder = () => {
 
   return (
     <div>
+        <AvatarVideo transcript={transciption}/>
       <button onClick={isRecording ? stopRecording : startRecording}>
         {isRecording ? 'Stop Recording' : 'Start Recording'}
       </button>
