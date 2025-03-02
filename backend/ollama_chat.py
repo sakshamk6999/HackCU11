@@ -1,6 +1,7 @@
 from lemonade.api import from_pretrained
 import re
-
+from time import time
+from datetime import datetime
 # from langchain.prompts import PromptTemplate
 from chroma_client import Chroma
 from uuid import uuid4
@@ -97,8 +98,9 @@ class OllamaModel:
             # decoded_response = [temp.strip() for temp in decoded_response]
             decoded_response = decoded_response.replace('\n', '').replace('\r', '').replace("\"", '').replace("[", '')
 
-
-        self.chromadb.add({"id": "test1", "content": "\n".join(decoded_response)})
+        id = str(datetime.fromtimestamp(time()))
+        print(id)
+        self.chromadb.add({"id": id, "content": "\n".join(decoded_response)})
         
         # self.chromadb.add({"id": str(uuid4()), "content": "\n".join(decoded_response)})
         return decoded_response

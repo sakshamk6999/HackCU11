@@ -11,11 +11,12 @@ class Chroma:
         # os.environ['OPENAI_API_KEY'] = 'ollama'
         self.embedding_function = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
         # self.Settings = self.embedding_function
-        self.chroma_client = chromadb.Client(Settings(
-            persist_directory="./chroma_db",
+        self.chroma_client = chromadb.PersistentClient(
+            path="./chroma_db",
             # persist_directory="/c/Users/aup/source/repos/HackCU11/chroma_db",
-            anonymized_telemetry=False
-        ))
+            # anonymized_telemetry=False
+        )
+        self.chroma_client.heartbeat()
         self.collection_name = collection_name
 
     def add(self, document):
