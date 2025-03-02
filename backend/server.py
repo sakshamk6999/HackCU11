@@ -4,6 +4,7 @@ import os
 from flask_cors import CORS, cross_origin
 from google_speech_2_text import quickstart_v2
 from google_speech_2_text_stream import transcribe_streaming_v2
+import requests
 import jsonpickle
 
 app = Flask(__name__)
@@ -28,8 +29,15 @@ def handle_audio_chunk(data):
     response = quickstart_v2()
     print(f"the response is {response}")
 
+    response = requests.post("http://127.0.0.1:5000/ask", data={"prompt": response})
     # Optionally, send a response back to the client
-    emit('transcription', {'transcript': response})
+    # emit('transcription', {'transcript': ' '.join(response.json()['response'])})
+    response_list = response.json()['response']
+    final_response = " ".join(response_list)
+
+    print(f"response {final_response}")
+    emit('transcription', {'transcript': final_response})
+    # print(f"joined response {' '.join(response.json()['response'])}")
 
 # Handle stop recording event
 @socketio.on('stop_recording')

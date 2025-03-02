@@ -40,4 +40,7 @@ def quickstart_v2() -> cloud_speech.RecognizeResponse:
     #     print(f"Transcript: {result.alternatives[0].transcript}")
 
     # return response
+    # print(f"{response=}")
+    # print(f"{response.results}")
+    # print(f"{response.results[0].alternatives}")
     return response.results[0].alternatives[0].transcript

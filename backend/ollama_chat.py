@@ -60,44 +60,43 @@ class OllamaModel:
     
     def ask_with_RAG(self, prompt: str):
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
-        response1 = self.model.generate(input_ids)
-        decoded_response1 = self.tokenizer.decode(response1[0])
+        # response1 = self.model.generate(input_ids)
+        # decoded_response1 = self.tokenizer.decode(response1[0])
         
 
-        context_docs = self.chromadb.query(decoded_response1)
+        context_docs = self.chromadb.query(prompt)
         context = "\n".join(context_docs)
 
+        context = context.replace('\n', '')
+
         final_response = f"""
-            Extract key facts and information from the following message. 
-            Focus on personal details, events, preferences, emotions, and relationships.
-            Format the output as a JSON list of facts.
-            
+            Give a single answer to the query mentioned in the following User Message briefly. 
+    
             Context: {context}
-            User message: {decoded_response1}
+            User message: {prompt}
             
-            Output format:
-            [
-            "fact 1",
-            "fact 2",
-            ...
-            ]
+            Answer:
         """
 
+        print(f"{context=}")
+
         input_ids = self.tokenizer(final_response, return_tensors="pt").input_ids
-        response = self.model.generate(input_ids, max_new_tokens=1000)
+        response = self.model.generate(input_ids, max_new_tokens=200)
         decoded_response = self.tokenizer.decode(response[0])
 
-        pattern1 = "Here is the output in the requested format:"
+        pattern1 = "Answer:"
         reg_match = re.search(pattern1, decoded_response)
         
         if reg_match:
             decoded_response = decoded_response[reg_match.end():]
-            reg_match2 = re.search("]", decoded_response)
-            if reg_match2:
-                decoded_response = decoded_response[:reg_match2.start()]
-            decoded_response = decoded_response.replace('\n', ' ').replace('\r', '').replace("\"", '').replace("[", '')
-            decoded_response = decoded_response.split(",")
-            decoded_response = [temp.strip() for temp in decoded_response]
+            # reg_match2 = re.search("]", decoded_response)
+            # if reg_match2:
+            #     decoded_response = decoded_response[:reg_match2.start()]
+            # decoded_response = decoded_response.replace('\n', ' ').replace('\r', '').replace("\"", '').replace("[", '')
+            # decoded_response = decoded_response.split(",")
+            # decoded_response = [temp.strip() for temp in decoded_response]
+            decoded_response = decoded_response.replace('\n', '').replace('\r', '').replace("\"", '').replace("[", '')
+
 
         self.chromadb.add({"id": "test1", "content": "\n".join(decoded_response)})
         
@@ -111,7 +110,7 @@ class OllamaModel:
         extraction_prompt = f"""
             Extract key facts and information from the following message. 
             Focus on personal details, events, preferences, emotions, and relationships.
-            Format the output as a JSON list of facts.
+            Print the output after the words Gyanig.
             
             User message: {decoded_response1}
             
@@ -122,7 +121,7 @@ class OllamaModel:
             ...
             ]
         """
-        pattern1 = "Here is the output in the JSON format:"
+        pattern1 = "JSON format:"
         input_ids = self.tokenizer(self.ANSH_SYSTEM_PROMPT + extraction_prompt, return_tensors="pt").input_ids
         response = self.model.generate(input_ids, max_new_tokens=1000)
         decoded_response = self.tokenizer.decode(response[0])
