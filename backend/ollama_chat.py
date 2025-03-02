@@ -98,9 +98,12 @@ class OllamaModel:
             # decoded_response = [temp.strip() for temp in decoded_response]
             decoded_response = decoded_response.replace('\n', '').replace('\r', '').replace("\"", '').replace("[", '')
 
+        decoded_response2 = "".join(decoded_response)
         id = str(datetime.fromtimestamp(time()))
-        print(id)
-        self.chromadb.add({"id": id, "content": "\n".join(decoded_response)})
+        # print(id)
+        context_decode = f"Timestamp: {id} Question: {prompt} Response: {decoded_response2}"
+
+        self.chromadb.add({"id": id, "content": context_decode})
         
         # self.chromadb.add({"id": str(uuid4()), "content": "\n".join(decoded_response)})
         return decoded_response

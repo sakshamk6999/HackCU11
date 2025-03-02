@@ -8,6 +8,7 @@ venv/
 llm/
 llm_env/
 github-repo/chromadb-viewer
+chroma_db/
 
 # environment files
 **/.env

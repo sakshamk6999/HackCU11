@@ -1,7 +1,7 @@
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # from llama_index.embeddings.
 from llama_index.core import Settings
-
+import json
 import chromadb
 from chromadb.config import Settings
 import os
@@ -16,8 +16,28 @@ class Chroma:
             # persist_directory="/c/Users/aup/source/repos/HackCU11/chroma_db",
             # anonymized_telemetry=False
         )
+        # self.chroma_client.reset()
         self.chroma_client.heartbeat()
         self.collection_name = collection_name
+        f_name = "backend/diary.txt"
+        try:
+            # chroma_client = Chroma()
+            with open(f_name, "r") as f:
+                # print("Yes")
+                datas = json.load(f)
+            # print(data[0])
+            
+            for i, data in enumerate(datas):
+                doc = {
+                    "id" : str(data['day']),
+                    "content" : " ".join(data['response'])}
+                # print(doc)
+                # exit(0)
+                print(f"Added Document {i+1}")
+                self.add(doc)
+            
+        except Exception as e:
+            print(e)
 
     def add(self, document):
         # document is of the form {"id": "doc1", "content": "Python is a versatile programming language."}
@@ -37,7 +57,7 @@ class Chroma:
         
         results = collection.query(
             query_embeddings=[query_embedding],
-            n_results=3
+            n_results=5
         )
         retrieved_docs = results['documents'][0]
         return retrieved_docs
